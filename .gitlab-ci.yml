@@ -13,12 +13,17 @@ variables:
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
 build:
   stage: build
   script: gradle --build-cache assemble
   artifacts:
     paths:
-      - build/libs/*
+      - build/libs/*.jar
     name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
   cache:
     key: "$CI_COMMIT_REF_NAME"
