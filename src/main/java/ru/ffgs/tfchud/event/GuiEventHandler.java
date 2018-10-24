@@ -13,8 +13,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import ru.ffgs.tfchud.TerraFirmaHUD;
@@ -79,7 +79,7 @@ public class GuiEventHandler {
 					float saturation = foodStats.getSaturationLevel();
 					float saturationFill = Math.min(saturation / 20, 1);
 
-					float exhaustion = ReflectionHelper.getPrivateValue(FoodStats.class, foodStats, "foodExhaustionLevel");
+					float exhaustion = ObfuscationReflectionHelper.getPrivateValue(FoodStats.class, foodStats, "field_75126_c", "foodExhaustionLevel");
 					float exhaustionFill = Math.min(exhaustion / 4, 1);
 
 					GlStateManager.enableBlend();
