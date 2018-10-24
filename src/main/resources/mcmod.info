@@ -1,0 +1,16 @@
+[
+{
+  "modid": "terrafirmahud",
+  "name": "TerraFirmaHUD",
+  "description": "Lightweight HUD mod inspired by TerraFirmaCraft.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["YuRaNnNzZZ"],
+  "credits": "TerraFirmaCraft team for the original textures.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
