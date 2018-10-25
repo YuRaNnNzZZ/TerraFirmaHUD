@@ -1,6 +1,8 @@
 package ru.ffgs.tfchud.event;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
@@ -36,7 +38,8 @@ public class GuiEventHandler {
 		int height = res.getScaledHeight();
 
 		int centerWidth = width / 2;
-		int baseHeight = height - 39;
+		int heightLeft = height - GuiIngameForge.left_height;
+		int heightRight = height - GuiIngameForge.right_height;
 
 		int xLeft = centerWidth - 90 - 1;
 		int xRight = centerWidth + 8 + 1;
@@ -51,18 +54,47 @@ public class GuiEventHandler {
 				case ALL:
 					GuiIngameForge.renderFood = true;
 					break;
+				case AIR:
+					float air = player.getAir();
+					float airFill = Math.min(air / 300, 1);
+
+					if (player.isInsideOfMaterial(Material.WATER) || airFill < 1) {
+						GlStateManager.enableBlend();
+
+						ingameGUI.drawTexturedModalRect(xRight, heightRight, 0, 36, 81, 9);
+						ingameGUI.drawTexturedModalRect(xRight, heightRight, 0, 45, (int) (airFill * 81), 9);
+
+						GlStateManager.disableBlend();
+
+						GuiIngameForge.left_height += 10;
+					}
+
+					event.setCanceled(true);
+					break;
+
 				case HEALTH:
 					float health = player.getHealth();
 					float maxHealth = player.getMaxHealth();
+
+					String healthString = String.format("%d/%d", (int) health, (int) maxHealth);
+
 					float healthFill = Math.min(health / maxHealth, 1);
+
+					float absorption = player.getAbsorptionAmount();
+					float absorptionFill = Math.min(absorption / maxHealth, 1);
 
 					GlStateManager.enableBlend();
 
-					ingameGUI.drawTexturedModalRect(xLeft, baseHeight, 0, 0, 81, 9);
-					ingameGUI.drawTexturedModalRect(xLeft, baseHeight, 0, 9, (int) (healthFill * 81), 9);
+					ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, 0, 81, 9);
+					ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, 9, (int) (healthFill * 81), 9);
 
-					String healthString = String.format("%d/%d", (int) health, (int) maxHealth);
-					mc.fontRenderer.drawString(healthString, xLeft + 40 - (mc.fontRenderer.getStringWidth(healthString) / 2), baseHeight + 1, 0xffffffff);
+					if (absorption > 0) {
+						ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, 18, (int) (absorptionFill * 81), 9);
+
+						healthString = String.format("%d+%d/%d", (int) health, (int) absorption, (int) maxHealth);
+					}
+
+					drawStringOutlined(mc.fontRenderer, healthString, xLeft + 40 - (mc.fontRenderer.getStringWidth(healthString) / 2), heightLeft + 1, 0xffffffff, 0x7f000000);
 
 					GlStateManager.disableBlend();
 
@@ -87,15 +119,15 @@ public class GuiEventHandler {
 					if (hasAppleSkin && exhaustionFill > 0) {
 						int exhaustionWidth = (int) (exhaustionFill * 81);
 
-						ingameGUI.drawTexturedModalRect(xRight, baseHeight - 1, 81, 27, exhaustionWidth, 4);
-						ingameGUI.drawTexturedModalRect(xRight, baseHeight + 6, 81, 32, exhaustionWidth, 4);
+						ingameGUI.drawTexturedModalRect(xRight, heightRight - 1, 81, 27, exhaustionWidth, 4);
+						ingameGUI.drawTexturedModalRect(xRight, heightRight + 6, 81, 32, exhaustionWidth, 4);
 					}
 
-					ingameGUI.drawTexturedModalRect(xRight, baseHeight, 81, 0, 81, 9);
-					ingameGUI.drawTexturedModalRect(xRight, baseHeight, 81, 9, (int) (hungerFill * 81), 9);
+					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 0, 81, 9);
+					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 9, (int) (hungerFill * 81), 9);
 
 					if (hasAppleSkin) {
-						ingameGUI.drawTexturedModalRect(xRight, baseHeight, 81, 18, (int) (saturationFill * 81), 9);
+						ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 18, (int) (saturationFill * 81), 9);
 					}
 
 					GlStateManager.disableBlend();
@@ -106,25 +138,26 @@ public class GuiEventHandler {
 					break;
 				case HEALTHMOUNT:
 					Entity tmp = player.getRidingEntity();
-					if (!(tmp instanceof EntityLivingBase)) break;
 
-					EntityLivingBase mount = (EntityLivingBase) tmp;
+					if (tmp instanceof EntityLivingBase) {
+						EntityLivingBase mount = (EntityLivingBase) tmp;
 
-					float mountHealth = mount.getHealth();
-					float mountMaxHealth = mount.getMaxHealth();
-					float mountHealthFill = Math.min(mountHealth / mountMaxHealth, 1);
+						float mountHealth = mount.getHealth();
+						float mountMaxHealth = mount.getMaxHealth();
+						float mountHealthFill = Math.min(mountHealth / mountMaxHealth, 1);
 
-					GlStateManager.enableBlend();
+						GlStateManager.enableBlend();
 
-					ingameGUI.drawTexturedModalRect(xRight, baseHeight - 10, 162, 0, 81, 9);
-					ingameGUI.drawTexturedModalRect(xRight, baseHeight - 10, 162, 9, (int) (mountHealthFill * 81), 9);
+						ingameGUI.drawTexturedModalRect(xRight, heightRight, 162, 0, 81, 9);
+						ingameGUI.drawTexturedModalRect(xRight, heightRight, 162, 9, (int) (mountHealthFill * 81), 9);
 
-					String mountHealthString = String.format("%d/%d", (int) mountHealth, (int) mountMaxHealth);
-					mc.fontRenderer.drawString(mountHealthString, xRight + 41 - (mc.fontRenderer.getStringWidth(mountHealthString) / 2), baseHeight - 9, 0xffffffff);
+						String mountHealthString = String.format("%d/%d", (int) mountHealth, (int) mountMaxHealth);
+						drawStringOutlined(mc.fontRenderer, mountHealthString, xRight + 41 - (mc.fontRenderer.getStringWidth(mountHealthString) / 2), heightRight + 1, 0xffffffff, 0x7f000000);
 
-					GlStateManager.disableBlend();
+						GlStateManager.disableBlend();
 
-					GuiIngameForge.right_height += 10;
+						GuiIngameForge.right_height += 10;
+					}
 
 					event.setCanceled(true);
 					break;
@@ -132,5 +165,14 @@ public class GuiEventHandler {
 		}
 
 		mc.getTextureManager().bindTexture(Gui.ICONS);
+	}
+
+	private static void drawStringOutlined(FontRenderer fontRenderer, String text, int x, int y, int colorMain, int colorOutline) {
+		fontRenderer.drawString(text, x + 1, y, colorOutline);
+		fontRenderer.drawString(text, x - 1, y, colorOutline);
+		fontRenderer.drawString(text, x, y + 1, colorOutline);
+		fontRenderer.drawString(text, x, y - 1, colorOutline);
+
+		fontRenderer.drawString(text, x, y, colorMain);
 	}
 }
