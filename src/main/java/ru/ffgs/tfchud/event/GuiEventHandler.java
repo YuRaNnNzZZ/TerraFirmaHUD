@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
@@ -42,7 +43,7 @@ public class GuiEventHandler {
 		int heightRight = height - GuiIngameForge.right_height;
 
 		int xLeft = centerWidth - 90 - 1;
-		int xRight = centerWidth + 8 + 1;
+		int xRight = centerWidth + 8 + 2;
 
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		mc.getTextureManager().bindTexture(icons);
@@ -76,6 +77,8 @@ public class GuiEventHandler {
 					float health = player.getHealth();
 					float maxHealth = player.getMaxHealth();
 
+					boolean withered = player.isPotionActive(MobEffects.WITHER); // НАПУГАН :ghost:
+
 					String healthString = String.format("%d/%d", (int) health, (int) maxHealth);
 
 					float healthFill = Math.min(health / maxHealth, 1);
@@ -86,7 +89,7 @@ public class GuiEventHandler {
 					GlStateManager.enableBlend();
 
 					ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, 0, 81, 9);
-					ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, 9, (int) (healthFill * 81), 9);
+					ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, withered ? 27 : 9, (int) (healthFill * 81), 9);
 
 					if (absorption > 0) {
 						ingameGUI.drawTexturedModalRect(xLeft, heightLeft, 0, 18, (int) (absorptionFill * 81), 9);
