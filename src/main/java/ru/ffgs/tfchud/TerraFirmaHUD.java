@@ -8,17 +8,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import ru.ffgs.tfchud.event.GuiEventHandler;
 
 @Mod(
-	modid = TerraFirmaHUD.MOD_ID,
-	name = TerraFirmaHUD.MOD_NAME,
-	version = TerraFirmaHUD.MOD_VERSION,
-	acceptableRemoteVersions = "*",
-	dependencies = "after:appleskin;",
-	clientSideOnly = true
+		modid = TerraFirmaHUD.MOD_ID,
+		acceptableRemoteVersions = "*",
+		dependencies = "after:appleskin;",
+		clientSideOnly = true,
+		useMetadata = true
 )
 public class TerraFirmaHUD {
 	public static final String MOD_ID = "terrafirmahud";
-	public static final String MOD_NAME = "TerraFirmaHUD";
-	public static final String MOD_VERSION = "@VERSION@";
 
 	@SideOnly(Side.CLIENT)
 	@Mod.EventHandler

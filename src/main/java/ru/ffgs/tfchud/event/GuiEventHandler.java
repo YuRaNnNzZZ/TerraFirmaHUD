@@ -11,8 +11,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,7 +27,7 @@ import ru.ffgs.tfchud.TerraFirmaHUD;
 
 @Mod.EventBusSubscriber(modid = TerraFirmaHUD.MOD_ID, value = {Side.CLIENT})
 public class GuiEventHandler {
-	private static ResourceLocation icons = new ResourceLocation(TerraFirmaHUD.MOD_ID, "textures/gui/icons.png");
+	private static final ResourceLocation icons = new ResourceLocation(TerraFirmaHUD.MOD_ID, "textures/gui/icons.png");
 
 	public static boolean hasAppleSkin = false;
 
@@ -131,6 +134,35 @@ public class GuiEventHandler {
 
 					if (hasAppleSkin) {
 						ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 18, (int) (saturationFill * 81), 9);
+					}
+
+					ItemStack heldStack = player.getHeldItemMainhand();
+					if (heldStack.isEmpty() || !(heldStack.getItem() instanceof ItemFood)) {
+						heldStack = player.getHeldItemOffhand();
+					}
+					if (!heldStack.isEmpty() && heldStack.getItem() instanceof ItemFood) {
+						ItemFood food = (ItemFood) heldStack.getItem();
+
+						int healAmount = food.getHealAmount(heldStack);
+						float saturationModifier = food.getSaturationModifier(heldStack);
+
+						if (healAmount > 0) {
+							float targetFoodLevel = Math.min(healAmount + hunger, 20);
+							float targetFoodSaturationLevel = Math.min(saturation + (float)healAmount * saturationModifier * 2.0F, targetFoodLevel);
+
+							float targetFoodFill = Math.min(targetFoodLevel / 20, 1);
+							float targetSaturationFill = Math.min(targetFoodSaturationLevel / 20, 1);
+
+							GlStateManager.color(1.0F, 1.0F, 1.0F, MathHelper.abs(MathHelper.sin((float)(Minecraft.getSystemTime() % 1000L) / 1000.0F * (float)Math.PI)));
+
+							ingameGUI.drawTexturedModalRect(xRight + (int) (hungerFill * 81), heightRight, 81 + (int) (hungerFill * 81), 9, (int) ((targetFoodFill - hungerFill) * 81), 9);
+
+							if (hasAppleSkin) {
+								ingameGUI.drawTexturedModalRect(xRight + (int) (saturationFill * 81), heightRight, 81 + (int) (saturationFill * 81), 18, (int) ((targetSaturationFill - saturationFill) * 81), 9);
+							}
+
+							GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+						}
 					}
 
 					GlStateManager.disableBlend();
