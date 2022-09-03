@@ -13,8 +13,11 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.FoodStats;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -126,9 +129,29 @@ public class GuiEventHandler {
 
 					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 0, 81, 9);
 					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 9, (int) (hungerFill * 81), 9);
+					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 18, (int) (saturationFill * 81), 9);
 
-					if (hasAppleCore) {
-						ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 18, (int) (saturationFill * 81), 9);
+					ItemStack heldStack = player.getHeldItem();
+					if (heldStack != null && heldStack.getItem() instanceof ItemFood) {
+						ItemFood food = (ItemFood) heldStack.getItem();
+
+						int healAmount = food.func_150905_g(heldStack); // getHealAmount
+						float saturationModifier = food.func_150906_h(heldStack); // getSaturationModifier
+
+						if (healAmount > 0) {
+							float targetFoodLevel = Math.min(healAmount + hunger, 20);
+							float targetFoodSaturationLevel = Math.min(saturation + (float)healAmount * saturationModifier * 2.0F, targetFoodLevel);
+
+							float targetFoodFill = Math.min(targetFoodLevel / 20, 1);
+							float targetSaturationFill = Math.min(targetFoodSaturationLevel / 20, 1);
+
+							GL11.glColor4f(1.0F, 1.0F, 1.0F, MathHelper.abs(MathHelper.sin((float)(Minecraft.getSystemTime() % 1000L) / 1000.0F * (float)Math.PI)));
+
+							ingameGUI.drawTexturedModalRect(xRight + (int) (hungerFill * 81), heightRight, 81 + (int) (hungerFill * 81), 9, (int) ((targetFoodFill - hungerFill) * 81), 9);
+							ingameGUI.drawTexturedModalRect(xRight + (int) (saturationFill * 81), heightRight, 81 + (int) (saturationFill * 81), 18, (int) ((targetSaturationFill - saturationFill) * 81), 9);
+
+							GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+						}
 					}
 
 					GL11.glDisable(GL11.GL_BLEND);
