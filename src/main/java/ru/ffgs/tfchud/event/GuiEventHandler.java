@@ -129,7 +129,10 @@ public class GuiEventHandler {
 
 					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 0, 81, 9);
 					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 9, (int) (hungerFill * 81), 9);
-					ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 18, (int) (saturationFill * 81), 9);
+
+					if (hasAppleCore) {
+						ingameGUI.drawTexturedModalRect(xRight, heightRight, 81, 18, (int) (saturationFill * 81), 9);
+					}
 
 					ItemStack heldStack = player.getHeldItem();
 					if (heldStack != null && heldStack.getItem() instanceof ItemFood) {
@@ -148,7 +151,10 @@ public class GuiEventHandler {
 							GL11.glColor4f(1.0F, 1.0F, 1.0F, MathHelper.abs(MathHelper.sin((float)(Minecraft.getSystemTime() % 1000L) / 1000.0F * (float)Math.PI)));
 
 							ingameGUI.drawTexturedModalRect(xRight + (int) (hungerFill * 81), heightRight, 81 + (int) (hungerFill * 81), 9, (int) ((targetFoodFill - hungerFill) * 81), 9);
-							ingameGUI.drawTexturedModalRect(xRight + (int) (saturationFill * 81), heightRight, 81 + (int) (saturationFill * 81), 18, (int) ((targetSaturationFill - saturationFill) * 81), 9);
+
+							if (hasAppleCore) {
+								ingameGUI.drawTexturedModalRect(xRight + (int) (saturationFill * 81), heightRight, 81 + (int) (saturationFill * 81), 18, (int) ((targetSaturationFill - saturationFill) * 81), 9);
+							}
 
 							GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 						}
